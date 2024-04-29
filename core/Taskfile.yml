@@ -1,0 +1,19 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the release artifacts
+    cmds:
+    - cargo build --release
+    - cbindgen --config cbindgen.toml --crate botwfdcore --output ../target/release/botwfdcore.h
+  
+  copy:
+    desc: Copy the binary to the package location
+    cmds:
+    - coreutils cp ../target/release/botwfdcore.pdb ../plugin/release/RelWithDebInfo/obs-plugins/64bit
+    - coreutils cp ../target/release/botwfdcore.dll ../plugin/release/RelWithDebInfo/obs-plugins/64bit
+  
+  clean:
+    desc: Clean cargo outputs
+    cmds:
+    - cargo clean

@@ -1,0 +1,49 @@
+version: '3'
+
+includes:
+  obs:
+    taskfile: ./plugin
+    dir: ./plugin
+  
+  core:
+    taskfile: ./core
+    dir: ./core
+
+tasks:
+  install:
+    desc: Install tools and dependencies
+    env:
+      VCPKGRS_DYNAMIC: "1"
+    cmds:
+    - #rustup update
+    - task: cargo
+
+  cargo:
+    cmds:
+    - cargo install cbindgen coreutils
+
+  win:vcpkg:
+    desc: Install dependencies for Windows through vcpkg
+    env:
+      VCPKGRS_DYNAMIC: "1"
+    cmds:
+    - vcpkg install llvm opencv4[contrib,nonfree]
+
+  build:
+    desc: Build the plugin core and program
+    cmds:
+    - task: core:build
+    - task: obs:build
+    - task: core:copy
+  
+  clean:
+    desc: Remove build output
+    cmds:
+    - task: obs:clean
+    - task: core:clean
+  
+  package:
+    desc: Package the release
+    cmds:
+    - task: build
+    - task: obs:package

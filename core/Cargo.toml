@@ -1,0 +1,18 @@
+[package]
+name = "botwfdcore"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+opencv = { version = "0.91.2", features = ["clang-runtime"] }
+tungstenite = "0.21.0"
+
+[dependencies.botwfddata]
+path = "../data"
+
+[lib]
+name = "botwfdcore"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
