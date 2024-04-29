@@ -15,11 +15,12 @@ Not Available Yet
 
 You need the following tools:
 - A Rust Toolchain
-- (Windows Only)`vcpkg` in your path (https://github.com/microsoft/vcpkg)
 - `cmake` in your path (https://cmake.org/download/)
 - `task` in your path (https://taskfile.dev/#/installation)
+- (Windows Only)`vcpkg` in your path (https://github.com/microsoft/vcpkg)
+- (Windows Only)`pwsh` (PowerShell 7) in your path
 
-First run `task install` to setup the tools.
+After getting the tools above, run `task install` to setup additional dependencies.
 
 If you are on Windows, run `task win:vcpkg` to install `llvm` and `opencv` through `vcpkg`. After that, you need to add `clang.exe` to path (located at `$VCPKG_ROOT\installed\x64-windows\tools\llvm` on windows)
 

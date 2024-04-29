@@ -2,8 +2,8 @@ version: '3'
 
 includes:
   obs:
-    taskfile: ./plugin
-    dir: ./plugin
+    taskfile: ./obs
+    dir: ./obs
   
   core:
     taskfile: ./core
