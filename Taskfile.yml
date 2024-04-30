@@ -8,22 +8,38 @@ includes:
   core:
     taskfile: ./core
     dir: ./core
+  
+  client:
+    taskfile: ./client
+    dir: ./client
 
 tasks:
   install:
     desc: Install tools and dependencies
-    env:
-      VCPKGRS_DYNAMIC: "1"
     cmds:
     - #rustup update
     - task: cargo
 
-  cargo:
+  tools:obs:
+    desc: Install tools for OBS plugin development
     cmds:
-    - cargo install cbindgen coreutils
+    - task: tools:common
+    - cargo install cbindgen
+    - task: tools:windows
 
-  win:vcpkg:
+  tools:common:
+    cmds:
+    - cargo install coreutils
+    
+  tools:client:
+    cmds:
+    - task: tools:common
+    - cargo install wasm-pack
+    - task: client:install
+
+  tools:windows:
     desc: Install dependencies for Windows through vcpkg
+    platforms: [windows]
     env:
       VCPKGRS_DYNAMIC: "1"
     cmds:
@@ -31,19 +47,34 @@ tasks:
 
   build:
     desc: Build the plugin core and program
+    deps:
+    - build:windows
+  
+  build:windows:
+    platforms: [windows]
     cmds:
     - task: core:build
-    - task: obs:build
-    - task: core:copy
-  
-  clean:
-    desc: Remove build output
+    - task: obs:build:windows
+    - task: core:copy:windows
+
+  dev:
+    desc: Install the built plugin to OBS found locally. Might need privilege
     cmds:
-    - task: obs:clean
-    - task: core:clean
+    - python setup.py -i {{.CLI_ARGS}}
   
-  package:
-    desc: Package the release
+  dev:uninstall:
+    desc: Uninstall the plugin from OBS found locally. Might need privilege
     cmds:
-    - task: build
-    - task: obs:package
+    - python setup.py -u {{.CLI_ARGS}}
+  
+  # clean:
+  #   desc: Remove build output
+  #   cmds:
+  #   - task: obs:clean
+  #   - task: core:clean
+  
+  # package:windows:
+  #   desc: Package the release
+  #   cmds:
+  #    - task: build
+  #    - task: obs:package

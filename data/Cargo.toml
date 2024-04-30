@@ -1,10 +1,17 @@
 [package]
 name = "botwfddata"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bitvec = { version = "1.0.1", features = ["serde"] }
 deku = "0.16.0"
+serde = { version = "1.0.199", optional = true, features = ["derive"] }
+serde-wasm-bindgen = { version = "0.6.5", optional = true }
+tsify-next = { version = "0.5.3", optional = true, default-features = false, features = ["js"] }
+wasm-bindgen = { version = "0.2.92", optional = true }
 
+[features]
+wasm = ["dep:tsify-next", "dep:serde", "dep:wasm-bindgen", "dep:serde-wasm-bindgen"]

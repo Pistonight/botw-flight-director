@@ -1,0 +1,18 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install JS Packages
+    cmds:
+    - bun install
+
+  wasm:
+    desc: Build WASM Lib
+    dir: ./libs/wasm
+    cmds:
+    - wasm-pack build --out-dir dist --release
+  
+  dev:
+    desc: Run client in watch mode
+    cmds:
+    - bunx --bun vite --host

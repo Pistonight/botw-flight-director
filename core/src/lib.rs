@@ -1,59 +1,78 @@
-use std::os::raw;
-
 
 use std::ffi::CString;
-
+use botwfddata::Payload;
 use opencv::prelude::*;
 
 mod server;
+use server::Server;
+mod log;
 
-// extern "C" {
-//     fn botwfdplugin_log(data: *const raw::c_char);
-// }
 
-// /// Log a message to OBS
-// pub fn botwfd_log(message: &str) {
-//     let c_message = CString::new(message).unwrap();
-//     unsafe {
-//         botwfdplugin_log(c_message.as_ptr());
-//     }
-// }
-
+/// cbindgen:ignore
 #[repr(C)]
 pub struct BotwFdCore {
     pub settings: BotwFdSettings,
-    //pub server: Option<Server>,
+    /// Id to identify server restarts
+    server_id: u32,
+    /// Id to identify server restarts
+    server: Option<Server>,
 }
 
 impl BotwFdCore {
     pub fn new() -> Self {
         BotwFdCore {
             settings: Default::default(),
-            //server: None,
+            server_id: 1,
+            server: None,
         }
     }
 
     pub fn on_setting_update(&mut self) {
+        crate::info!("updating settings");
         // Check if server should be started/stopped/restarted
-        // if self.settings.enable {
-        //     match &mut self.server {
-        //         Some(server) => {
-        //             if server.port != self.settings.port {
-        //                 // restart server due to port change
-        //                 server.shutdown();
-        //                 *server = Server::new(self.settings.port);
-        //             }
-        //         }
-        //         None => {
-        //             self.server = Some(Server::new(self.settings.port));
-        //         }
-        //     }
+        if self.settings.enable {
+            let should_restart = match &self.server {
+                Some(server) => {
+                    if !server.is_running() || server.get_port() != self.settings.port || server.is_exposed() != self.settings.expose_host {
+                        crate::info!("restart server due to settings change");
+                        true
+                    } else {
+                        false
+                    }
+                }
+                None => {
+                    true
+                }
+            };
 
-        // } else {
-        //     if let Some(mut server) = self.server.take() {
-        //         server.shutdown();
-        //     }
-        // }
+            if should_restart {
+                self.shutdown_server();
+                let id = self.server_id;
+                self.server_id += 1;
+                self.server = Some(Server::start(id, self.settings.expose_host, self.settings.port));
+            }
+
+        } else {
+            self.shutdown_server();
+        }
+
+        crate::info!("settings updated");
+    }
+
+    fn shutdown_server(&mut self) {
+        if let Some(mut server) = self.server.take() {
+            if server.is_running() {
+                server.shutdown();
+            }
+        }
+    }
+
+    pub fn process_frame(&self) {
+        let server = match &self.server {
+            Some(server) => server,
+            None => return,
+        };
+        server.send(Payload::Log(CString::new("Hello from core").unwrap()))
     }
 
 }
@@ -62,8 +81,11 @@ impl BotwFdCore {
 #[derive(Debug, Default)]
 pub struct BotwFdSettings {
     // Server
+    /// The master switch to enable/disable the server
     pub enable: bool,
-    pub enable_logging: bool,
+    /// If the server should be exposed to network
+    pub expose_host: bool,
+    /// The port the server should listen on
     pub port: u16,
     // Quest Tracker
     pub enable_quest_tracker: bool,
@@ -77,7 +99,7 @@ pub struct BotwFdSettings {
 
 #[no_mangle]
 pub extern "C" fn botwfd_load(){
-    
+    info!("core loaded");
 }
 
 #[no_mangle]
@@ -93,10 +115,18 @@ pub extern "C" fn botwfd_destroy(core: *mut BotwFdCore) {
 }
 
 #[no_mangle]
+pub extern "C" fn botwfd_get_settings(core: *mut BotwFdCore) -> *mut BotwFdSettings {
+    core::ptr::from_mut(&mut unsafe { &mut *core }.settings)
+}
+
+#[no_mangle]
 pub extern "C" fn botwfd_update_settings(core: *mut BotwFdCore) {
-    unsafe {
-        (*core).on_setting_update();
-    }
+    unsafe { &mut *core }.on_setting_update();
+}
+
+#[no_mangle]
+pub extern "C" fn botwfd_process_frame(core: *mut BotwFdCore) {
+    unsafe { &mut *core }.process_frame();
 }
 
 pub fn test() {

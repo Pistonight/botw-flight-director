@@ -9,6 +9,10 @@ tasks:
   
   copy:
     desc: Copy the binary to the package location
+    deps:
+    - copy:windows
+
+  copy:windows:
     cmds:
     - coreutils cp ../target/release/botwfdcore.pdb ../obs/release/RelWithDebInfo/obs-plugins/64bit
     - coreutils cp ../target/release/botwfdcore.dll ../obs/release/RelWithDebInfo/obs-plugins/64bit

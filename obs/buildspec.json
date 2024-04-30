@@ -33,10 +33,10 @@
     },
     "platformConfig": {
         "macos": {
-            "bundleId": "com.piston.botwfdplugin"
+            "bundleId": "com.piston.botwfd"
         }
     },
-    "name": "botwfdplugin",
+    "name": "botwfd",
     "displayName": "BotW Flight Director",
     "version": "1.0.0",
     "author": "Pistonight",

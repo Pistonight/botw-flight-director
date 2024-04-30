@@ -34,7 +34,8 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ../../core/target/release/botwfdcore.dll)
+# PISTON HACK: link with core dll - only works on windows
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ../../target/release/botwfdcore.dll)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp)
 

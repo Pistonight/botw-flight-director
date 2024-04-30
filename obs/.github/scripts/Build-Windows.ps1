@@ -6,6 +6,8 @@ param(
     [string] $Configuration = 'RelWithDebInfo',
     [switch] $SkipAll,
     [switch] $SkipBuild,
+    # PISTON HACK: need this, see below
+    [switch] $DepOnly,
     [switch] $SkipDeps
 )
 
@@ -91,6 +93,13 @@ function Build {
 
         Log-Group "Configuring ${ProductName}..."
         Invoke-External cmake @CmakeArgs
+
+        # PISTON HACK:
+        # need script to only download deps and not build, as building core depends on obs.lib
+        # and building the plugin depends on core
+        if ( $DepOnly ) {
+            return
+        }
 
         Log-Group "Building ${ProductName}..."
         Invoke-External cmake @CmakeBuildArgs

@@ -1,0 +1,21 @@
+[package]
+name = "botwfdwasm"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+deku = "0.16.0"
+serde = "1.0.199"
+serde-wasm-bindgen = "0.6.5"
+wasm-bindgen = "0.2.92"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.botwfddata]
+path = "../../../data"
+features = ["wasm"]
+
+[lib]
+name = "botwfdwasm"
+path = "src/lib.rs"
+crate-type = ["cdylib"]

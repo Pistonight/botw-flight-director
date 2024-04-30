@@ -1,0 +1,6 @@
+pragma_once = true
+header = """
+struct BotwFdCore;
+"""
+[export]
+exclude = ["blog"]
